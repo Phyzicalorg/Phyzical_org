@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://phyzical.org/schema/episode.schema.json",
+  "title": "phyzical episode v1",
+  "description": "A single browser-teleoperation demonstration episode recorded by phyzical.org. Designed to convert losslessly into the elizaOS eliza_robot trajectory_db schema (see schema/MAPPING.md).",
+  "type": "object",
+  "required": ["episode_id", "task_id", "contributor", "sim", "duration_s", "success", "trajectory"],
+  "properties": {
+    "schema": { "const": "phyzical-episode-v1" },
+    "episode_id": { "type": "string", "description": "Unique episode identifier, e.g. EP_a41b7c2e" },
+    "task_id": { "type": "string", "description": "Task identifier, e.g. block_sorting_01" },
+    "task_description": { "type": "string", "description": "Natural-language task instruction (VLA language conditioning)" },
+    "contributor": { "type": "string", "description": "Contributor wallet address (provenance subject)" },
+    "robot_profile": { "type": "string", "description": "Robot morphology identifier; aligns with elizaOS RobotProfileId where applicable" },
+    "control_mode": { "type": "string", "enum": ["ee_drag_ik", "joint_sliders", "policy_takeover"], "default": "ee_drag_ik" },
+    "sim": {
+      "type": "object",
+      "required": ["engine"],
+      "properties": {
+        "engine": { "type": "string", "enum": ["unity_webgl", "mujoco", "isaac"] },
+        "physics_hz": { "type": "number" },
+        "record_hz": { "type": "number" }
+      }
+    },
+    "duration_s": { "type": "number", "minimum": 0 },
+    "success": { "type": "boolean", "description": "Task success criteria met (checked in-scene)" },
+    "trajectory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["t", "joint_pos", "ee_pose"],
+        "properties": {
+          "t": { "type": "number", "description": "Seconds since episode start" },
+          "joint_pos": { "type": "array", "items": { "type": "number" }, "description": "Joint positions in radians (gripper aperture last, in meters)" },
+          "joint_vel": { "type": "array", "items": { "type": "number" } },
+          "joint_targets": { "type": "array", "items": { "type": "number" } },
+          "ee_pose": {
+            "type": "object",
+            "required": ["xyz"],
+            "properties": {
+              "xyz": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+              "quat": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 }
+            }
+          },
+          "gripper": { "type": "number", "description": "Gripper aperture in meters" },
+          "object_poses": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "xyz": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+                "quat": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 }
+              }
+            }
+          },
+          "action": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["ee_delta", "joint_delta", "gripper"] },
+              "cmd": { "type": "array", "items": { "type": "number" } }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "data_id": { "type": "string", "description": "Onchain Data ID, e.g. phyz:robinhood:0x…" },
+        "content_hash": { "type": "string", "description": "sha256 of the canonical episode payload" },
+        "anchored_at": { "type": ["string", "null"], "description": "Block reference once anchored" }
+      }
+    }
+  }
+}
