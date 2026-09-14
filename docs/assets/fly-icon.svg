@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="overflow:visible">
-  <!-- phyzical fly mark · controller=flycns -->
+  <!-- phyzical fly mark - controller=flycns -->
   <style>
     .wl { animation: wl 0.22s ease-in-out infinite; transform-origin: 12px 9px; }
     .wr { animation: wr 0.22s ease-in-out infinite; transform-origin: 12px 9px; }
