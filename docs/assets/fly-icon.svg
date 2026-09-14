@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" style="overflow:visible">
+  <!-- phyzical fly mark · controller=flycns -->
+  <style>
+    .wl { animation: wl 0.22s ease-in-out infinite; transform-origin: 12px 9px; }
+    .wr { animation: wr 0.22s ease-in-out infinite; transform-origin: 12px 9px; }
+    @keyframes wl { 0%,100% { transform: rotate(8deg); } 50% { transform: rotate(-26deg); } }
+    @keyframes wr { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(26deg); } }
+  </style>
+  <g>
+    <g class="wl">
+      <ellipse cx="8.2" cy="13.2" rx="2.1" ry="4.6" transform="rotate(28 8.2 13.2)"
+        fill="#c8ff4d" opacity="0.22" stroke="#c8ff4d" stroke-width="0.7" stroke-opacity="0.7"/>
+    </g>
+    <g class="wr">
+      <ellipse cx="15.8" cy="13.2" rx="2.1" ry="4.6" transform="rotate(-28 15.8 13.2)"
+        fill="#c8ff4d" opacity="0.22" stroke="#c8ff4d" stroke-width="0.7" stroke-opacity="0.7"/>
+    </g>
+    <path d="M10.9 3.6 L9.6 1.9 M13.1 3.6 L14.4 1.9" stroke="#c8ff4d" stroke-width="0.8" stroke-linecap="round"/>
+    <circle cx="12" cy="4.6" r="1.9" fill="#c8ff4d"/>
+    <ellipse cx="12" cy="8.6" rx="2.4" ry="2.6" fill="#c8ff4d"/>
+    <path d="M12 10.6 C14 10.6 14.6 13 14.2 15.4 C13.9 17.6 13 19.6 12 19.6 C11 19.6 10.1 17.6 9.8 15.4 C9.4 13 10 10.6 12 10.6 Z" fill="#c8ff4d"/>
+    <path d="M9.9 13.4 H14.1 M10 15.6 H14 M10.4 17.4 H13.6" stroke="#070808" stroke-width="0.7"/>
+    <path d="M10 9.4 L7.2 11.2 M14 9.4 L16.8 11.2 M10 10.6 L7.4 13.6 M14 10.6 L16.6 13.6"
+      stroke="#c8ff4d" stroke-width="0.7" stroke-linecap="round" opacity="0.85"/>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-# flycns — the Fly connectome controller
+# <img src="../../docs/assets/fly-icon.svg" width="24" align="top" alt="fly" /> flycns — the Fly connectome controller
 
 > A [MaleCNS](https://blog.google/innovation-and-ai/technology/research/male-fruit-fly-brain-map/)
 > visual crop wired to the scene camera: photoreceptors in, descending-neuron

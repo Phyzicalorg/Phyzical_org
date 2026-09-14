@@ -1,4 +1,4 @@
-# The Fly controller (`controller=flycns`)
+# <img src="assets/fly-icon.svg" width="26" align="top" alt="fly" /> The Fly controller (`controller=flycns`)
 
 phyzical arms accept three actions sources over the same WebSocket: **Human**
 (mouse-drag + IK), **Auto** (scripted patrol) and **Fly** — a mapped fruit-fly
@@ -27,6 +27,18 @@ The dataset is a *connectome*: which neuron synapses onto which, at what
 strength. It is not a trained model and contains no behaviour by itself —
 which is exactly why it is interesting as a **controller**: the wiring is
 fixed, public, and reproducible by anyone.
+
+<p align="center">
+  <img src="assets/flycns-walk.png" width="780" alt="This is a fruit fly — simulated fly walking on the grid" />
+  <br/>
+  <sub><i>From the phyzical fly demo film: the simulated fly, before the camera dives into its nervous system…</i></sub>
+</p>
+
+<p align="center">
+  <img src="assets/flycns-cns.png" width="780" alt="This is its complete CNS — 166,000+ neurons reconstructed with AI" />
+  <br/>
+  <sub><i>…and the reveal: brain + ventral nerve cord, the graph the controller reads.</i></sub>
+</p>
 
 ## The mapping: `malecns_v1_visual_crop`
 
@@ -62,6 +74,19 @@ Dopamine-style **teach events** modulate the readout without rewiring it:
 
 This mirrors the fly's punishment/reward dopamine circuitry in *function*
 (gain modulation), not in mechanism.
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="assets/flycns-eye.png" alt="Ommatidia sampling — photoreceptors fire" />
+      <br/><sub>Scene camera → ommatidia (61 hex cells, R1–R6 / R8)</sub>
+    </td>
+    <td width="50%">
+      <img src="assets/flycns-readout.png" alt="DN readout drives the arm, PPL101 aversive fires" />
+      <br/><sub>Fixed wiring → DN gauges → arm; PPL101 fires on collision</sub>
+    </td>
+  </tr>
+</table>
 
 ### What is biology and what is engineering
 

@@ -96,12 +96,18 @@ This mirrors how elizaOS already ingests external episode sources
 (see their `trajectory_db/import_hyperscape.py`) — phyzical is simply the
 next source: `source="phyzical"`.
 
-## The Fly controller (`controller=flycns`)
+## <img src="docs/assets/fly-icon.svg" width="26" align="top" alt="fly" /> The Fly controller (`controller=flycns`)
 
 phyzical arms accept **three actions sources** over the same WebSocket and
 the same episode schema: **Human** (mouse-drag + IK — the pre-training core),
 **Auto** (scripted patrol — coverage and baselines), and **Fly** — a mapped
 fruit-fly nervous system.
+
+<p align="center">
+  <img src="docs/assets/flycns-cns.png" width="820" alt="MaleCNS: the complete fruit fly CNS — 166,000+ neurons reconstructed with AI" />
+  <br/>
+  <sub><i>From the phyzical fly demo film: the fly ghosts out, its complete CNS — brain + ventral nerve cord — lights up.</i></sub>
+</p>
 
 In 2025, [Google Research and HHMI Janelia released
 **MaleCNS v1.0**](https://blog.google/innovation-and-ai/technology/research/male-fruit-fly-brain-map/)
@@ -119,6 +125,19 @@ a **visual crop** of that graph to the scene camera:
                               dopamine-style teach events on
                               collision or success
 ```
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/assets/flycns-eye.png" alt="Scene camera into ommatidia: photoreceptors fire" />
+      <br/><sub><b>Step 1 — visual crop.</b> The scene camera feeds hex-sampled ommatidia (R1–R6 / R8); the fly hovers on its own POV.</sub>
+    </td>
+    <td width="50%">
+      <img src="docs/assets/flycns-readout.png" alt="Descending-neuron readout drives the arm; PPL101 aversive event" />
+      <br/><sub><b>Step 2 — DN readout.</b> Fixed wiring → turn/drive/grip gauges → <code>ee_delta</code>; a collision fires <code>PPL101 + AVERSIVE</code>.</sub>
+    </td>
+  </tr>
+</table>
 
 Run it — the controller and demo are in this repo, stdlib-only:
 
