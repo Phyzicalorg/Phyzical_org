@@ -37,7 +37,7 @@ segments stay human-attributed.
 | `total_reward` | `success ? 1.0 : 0.0` | sparse task reward |
 | `final_status` | `"success"` / `"failure"` | |
 | `episode_length` | `len(trajectory)` | frame count |
-| `metadata_json` | task_id, robot_profile, sim, control_mode, provenance | includes onchain Data ID + content hash |
+| `metadata_json` | task_id, robot_profile, sim, control_mode, **controller**, **fly**, provenance | includes onchain Data ID + content hash |
 | `is_training_data` | `success` | failed demos kept but not flagged |
 
 ## `trajectory_steps` (1 macro-step)
@@ -47,11 +47,11 @@ segments stay human-attributed.
 | `step_number` | `0` |
 | `action_type` | `"teleoperation"` |
 | `action_name` | `task_id` |
-| `action_params_json` | `{"control": control_mode}` |
+| `action_params_json` | `{"control": control_mode, "controller": controller}` |
 | `observation_json` | first frame (joint_pos, ee_pose, object_poses) |
 | `environment_state_json` | initial object poses |
 | `reward` / `done` | task reward / `1` |
-| `reasoning` | `"human demonstration (browser teleoperation)"` |
+| `reasoning` | `"human demonstration (browser teleoperation)"` — or `"fly connectome controller rollout (MaleCNS visual crop)"` for `controller=flycns_*` |
 
 ## `control_frames` (per frame)
 
@@ -61,7 +61,7 @@ segments stay human-attributed.
 | `joint_positions_json` | `joint_pos` |
 | `joint_velocities_json` | `joint_vel` (optional) |
 | `joint_targets_json` | `joint_targets` (optional) |
-| `action_applied_json` | `{type, cmd, gripper, ee_pose}` |
+| `action_applied_json` | `{type, cmd, gripper, ee_pose}` (+ `dn_readout` for fly episodes) |
 | `reward` | `0.0` except final frame = task reward |
 | `planner_step_id` | the macro-step id |
 | `imu_roll` / `imu_pitch` / `gyro_json` | `0.0` / `0.0` / `null` — tabletop arm, no IMU |
@@ -74,6 +74,22 @@ segments stay human-attributed.
 | `agent_pose_json` | initial `ee_pose` |
 | `task_description` | natural-language instruction (VLA language conditioning) |
 | `source` | `"phyzical_unity_webgl"` |
+
+## Controller tag (human / auto / flycns)
+
+Episodes carry a top-level `controller` field naming the actions source
+(`human_ik_v1`, `auto_patrol_v1`, `flycns_v1`). It lands in three places:
+
+1. `trajectories.metadata_json.controller` — dataset-level filtering
+   (e.g. *train on human only*, *use flycns as a control baseline*),
+2. `trajectory_steps.action_params_json.controller` — step attribution,
+3. onchain provenance metadata — filterable at purchase time.
+
+Fly episodes (`controller=flycns_v1`) additionally store the `fly` block
+(graph id, photoreceptor counts, DN readout cells, teach events) in
+`trajectories.metadata_json.fly`, and per-frame `dn_readout` inside
+`control_frames.action_applied_json`. See
+[`docs/flycns.md`](../docs/flycns.md).
 
 ## Provenance
 

@@ -62,11 +62,14 @@ This repo contains the open pieces of that pipeline:
 
 | Path | What it is |
 |---|---|
-| [`schema/episode.schema.json`](schema/episode.schema.json) | phyzical episode format (JSON Schema, v1) |
+| [`schema/episode.schema.json`](schema/episode.schema.json) | phyzical episode format (JSON Schema, v1) — incl. `controller` / `fly` fields |
 | [`schema/MAPPING.md`](schema/MAPPING.md) | field-by-field mapping: phyzical episode → elizaOS `trajectory_db` |
 | [`converters/eliza_robot/import_phyzical.py`](converters/eliza_robot/import_phyzical.py) | **working converter** — phyzical episodes → elizaOS-compatible SQLite |
-| [`examples/episode_block_sorting.json`](examples/episode_block_sorting.json) | sample episode (90 frames @30Hz, block-sorting task) |
+| [`controllers/flycns/`](controllers/flycns/) | **working Fly controller** — MaleCNS visual crop → descending-neuron readout → `ee_delta` |
+| [`examples/episode_block_sorting.json`](examples/episode_block_sorting.json) | sample human episode (90 frames @30Hz, block-sorting task) |
+| [`examples/episode_fly_keep_centered.json`](examples/episode_fly_keep_centered.json) | sample fly episode (360 frames @30Hz, `controller=flycns_v1`, PPL101 + PAM teach events) |
 | [`docs/integration-elizaos.md`](docs/integration-elizaos.md) | full integration design: data supply, DAgger loop, agent roles |
+| [`docs/flycns.md`](docs/flycns.md) | Fly controller design: the MaleCNS science, our mapping, what lands in the data |
 
 ## Quickstart: convert a phyzical episode for elizaOS
 
@@ -93,6 +96,59 @@ This mirrors how elizaOS already ingests external episode sources
 (see their `trajectory_db/import_hyperscape.py`) — phyzical is simply the
 next source: `source="phyzical"`.
 
+## The Fly controller (`controller=flycns`)
+
+phyzical arms accept **three actions sources** over the same WebSocket and
+the same episode schema: **Human** (mouse-drag + IK — the pre-training core),
+**Auto** (scripted patrol — coverage and baselines), and **Fly** — a mapped
+fruit-fly nervous system.
+
+In 2025, [Google Research and HHMI Janelia released
+**MaleCNS v1.0**](https://blog.google/innovation-and-ai/technology/research/male-fruit-fly-brain-map/)
+(CC BY): the first complete central nervous system map of an adult male
+fruit fly — **~166,000+ neurons** across brain and ventral nerve cord,
+including 3,335 R1–R6 and 811 R7/R8 photoreceptors. The Fly controller wires
+a **visual crop** of that graph to the scene camera:
+
+```
+ scene camera ──▶ ommatidia sampling ──▶ fixed wiring ──▶ DN readout ──▶ ee_delta
+ (64×64 crop)     R1–R6 + R8 channels    no training      turn/lift/       same WebSocket,
+                  + habituation          no gradients     drive/grip       same schema
+                                              ▲
+                              PPL101 (aversive) / PAM (reward)
+                              dopamine-style teach events on
+                              collision or success
+```
+
+Run it — the controller and demo are in this repo, stdlib-only:
+
+```bash
+# generate a fly episode (T-F01 "Keep Target Centered", deterministic)
+python3 controllers/flycns/demo.py --out examples/episode_fly_keep_centered.json
+
+# import it into the same trajectory_db as human episodes
+python3 converters/eliza_robot/import_phyzical.py \
+    examples/episode_fly_keep_centered.json --db trajectories.db
+```
+
+Fly episodes log `controller=flycns_v1`, per-frame `dn_readout` and
+`fly_stim`, and the teach-event history — same schema as human demos,
+different actions source. QC is controller-aware (collision rate, drop
+events, visual habituation instead of human smoothness), and the
+`controller` tag is written into on-chain provenance metadata so datasets
+can be filtered by source (`human` / `auto` / `flycns`). In the elizaOS
+stack this surfaces as a `FlyController` profile alongside human
+teleoperation.
+
+Humans produce the pre-training core; Fly produces **differentiated
+rollouts and control baselines** — saccadic, reactive trajectories no human
+or script generates. Design doc: [`docs/flycns.md`](docs/flycns.md).
+
+> **Fly mode is a mapped connectome controller. It is not a trained policy
+> and not a claim of animal-level dexterity.** MaleCNS v1.0 © Google
+> Research & HHMI Janelia, CC BY — the mapping is an engineering interface,
+> not a biological claim.
+
 ## The loop we're building
 
 1. **Data supply (this repo, now)** — browser demos → `trajectory_db` →
@@ -115,6 +171,7 @@ next source: `source="phyzical"`.
 - elizaOS: [github.com/elizaOS/eliza](https://github.com/elizaOS/eliza) ·
   [docs.elizaos.ai](https://docs.elizaos.ai)
 - elizaOS robotics research: [github.com/elizaOS/research](https://github.com/elizaOS/research)
+- MaleCNS announcement: [blog.google — A map of the male fruit fly brain](https://blog.google/innovation-and-ai/technology/research/male-fruit-fly-brain-map/)
 
 ## License
 

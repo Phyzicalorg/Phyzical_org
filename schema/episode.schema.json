@@ -12,7 +12,42 @@
     "task_description": { "type": "string", "description": "Natural-language task instruction (VLA language conditioning)" },
     "contributor": { "type": "string", "description": "Contributor wallet address (provenance subject)" },
     "robot_profile": { "type": "string", "description": "Robot morphology identifier; aligns with elizaOS RobotProfileId where applicable" },
-    "control_mode": { "type": "string", "enum": ["ee_drag_ik", "joint_sliders", "policy_takeover"], "default": "ee_drag_ik" },
+    "control_mode": { "type": "string", "enum": ["ee_drag_ik", "joint_sliders", "policy_takeover", "auto_patrol", "flycns"], "default": "ee_drag_ik" },
+    "controller": {
+      "type": "string",
+      "enum": ["human_ik_v1", "auto_patrol_v1", "flycns_v1"],
+      "description": "Actions source. Written into on-chain provenance metadata so datasets can be filtered by controller (human / auto / flycns)."
+    },
+    "fly": {
+      "type": "object",
+      "description": "Present when controller=flycns_v1. Connectome-controller metadata; see docs/flycns.md.",
+      "required": ["graph", "photoreceptors"],
+      "properties": {
+        "graph": { "type": "string", "description": "Wiring profile id, e.g. malecns_v1_visual_crop" },
+        "photoreceptors": {
+          "type": "object",
+          "properties": {
+            "r1r6": { "type": "integer", "description": "R1-R6 cells in the source crop (MaleCNS v1.0: 3335)" },
+            "r8": { "type": "integer", "description": "R7/R8 cells in the source crop (MaleCNS v1.0: 811)" }
+          }
+        },
+        "ommatidia_sampled": { "type": "integer", "description": "Pooled ommatidia the runtime actually samples (61)" },
+        "readout": { "type": "array", "items": { "type": "string" }, "description": "Descending-neuron readout cells, e.g. DNp20, DNpe017" },
+        "teach_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["t", "cell", "kind"],
+            "properties": {
+              "t": { "type": "number", "description": "Seconds since episode start" },
+              "cell": { "type": "string", "enum": ["PPL101", "PAM"] },
+              "kind": { "type": "string", "enum": ["aversive", "reward"] },
+              "ms": { "type": "number", "description": "Modulation pulse duration" }
+            }
+          }
+        }
+      }
+    },
     "sim": {
       "type": "object",
       "required": ["engine"],
@@ -59,6 +94,24 @@
             "properties": {
               "type": { "type": "string", "enum": ["ee_delta", "joint_delta", "gripper"] },
               "cmd": { "type": "array", "items": { "type": "number" } }
+            }
+          },
+          "dn_readout": {
+            "type": "object",
+            "description": "Fly episodes only: descending-neuron scalars for this frame",
+            "properties": {
+              "turn": { "type": "number" },
+              "lift": { "type": "number" },
+              "drive": { "type": "number" },
+              "grip": { "type": "number" }
+            }
+          },
+          "fly_stim": {
+            "type": "object",
+            "description": "Fly episodes only: photoreceptor stimulus summary for this frame",
+            "properties": {
+              "mean": { "type": "number" },
+              "habituation": { "type": "number", "description": "0 = fresh stimulus, 1 = fully habituated (QC rejects sustained highs)" }
             }
           }
         }

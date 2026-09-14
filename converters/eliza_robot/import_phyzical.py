@@ -185,12 +185,17 @@ def import_episode(conn: sqlite3.Connection, episode: dict, *, verbose: bool = T
     end_time = duration_s
     now = _now_iso()
 
+    controller = episode.get("controller", "human_ik_v1")
+    is_fly = controller.startswith("flycns")
+
     metadata = {
         "platform": "phyzical.org",
         "task_id": task_id,
         "robot_profile": episode.get("robot_profile"),
         "sim": episode.get("sim"),
         "control_mode": episode.get("control_mode", "ee_drag_ik"),
+        "controller": controller,
+        "fly": episode.get("fly"),
         "provenance": episode.get("provenance"),
         "schema": "phyzical-episode-v1",
     }
@@ -249,12 +254,14 @@ def import_episode(conn: sqlite3.Connection, episode: dict, *, verbose: bool = T
             ),
             "teleoperation",
             task_id,
-            _dumps({"control": episode.get("control_mode", "ee_drag_ik")}),
+            _dumps({"control": episode.get("control_mode", "ee_drag_ik"), "controller": controller}),
             1 if success else 0,
             1.0 if success else 0.0,
             1,
             _dumps({"object_poses": first.get("object_poses")}),
-            "human demonstration (browser teleoperation)",
+            "fly connectome controller rollout (MaleCNS visual crop)"
+            if is_fly
+            else "human demonstration (browser teleoperation)",
             _dumps({"frames": len(frames)}),
         ),
     )
@@ -282,6 +289,7 @@ def import_episode(conn: sqlite3.Connection, episode: dict, *, verbose: bool = T
                         "cmd": action.get("cmd"),
                         "gripper": f.get("gripper"),
                         "ee_pose": f.get("ee_pose"),
+                        **({"dn_readout": f["dn_readout"]} if f.get("dn_readout") else {}),
                     }
                 ),
                 (1.0 if success else 0.0) if i == last_index else 0.0,
